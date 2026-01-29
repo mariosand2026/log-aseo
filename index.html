@@ -12,7 +12,6 @@ body {
   background: #f4f6f8;
   margin: 0;
   padding: 20px;
-  font-size: 20px;
 }
 
 h1 {
@@ -31,6 +30,7 @@ h1 {
 label {
   display: block;
   margin-top: 20px;
+  font-size: 22px;
   font-weight: bold;
 }
 
@@ -50,16 +50,66 @@ button {
   margin-top: 25px;
 }
 
-#calendar {
+.task-toggle {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  margin-top: 8px;
+}
+
+.task-toggle input {
+  margin-right: 10px;
+  transform: scale(1.4);
+}
+
+.calendar {
   margin-top: 30px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .day {
   background: #fff;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-radius: 12px;
+  border-radius: 14px;
+  padding: 10px;
+  min-height: 140px;
+  font-size: 18px;
+}
+
+.day strong {
+  display: block;
   font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.task {
+  padding: 6px 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+
+.blue { background: #d0e7ff; }
+.green { background: #d8f5dc; }
+.yellow { background: #fff4cc; }
+.red { background: #ffd6d6; }
+.purple { background: #eadcff; }
+
+.empty {
+  background: transparent;
 }
 
 .footer {
@@ -79,8 +129,14 @@ Artificial Intelligence<br>
 by Mario Andrés Narváez Delgado
 </div>
 
-<label>Integrantes de la familia (uno por línea)</label>
-<textarea id="members" rows="5" placeholder="Ej:&#10;Mamá&#10;Papá&#10;Juan&#10;Ana"></textarea>
+<label>Integrantes</label>
+<textarea id="members" rows="4"></textarea>
+
+<label>Tareas</label>
+<textarea id="tasks" rows="4"></textarea>
+
+<label>Activar tareas</label>
+<div id="taskToggles"></div>
 
 <label>Mes</label>
 <select id="month"></select>
@@ -90,70 +146,134 @@ by Mario Andrés Narváez Delgado
 
 <button onclick="generateCalendar()">Generar calendario</button>
 
-<div id="calendar"></div>
+<div class="calendar">
+  <div class="weekdays">
+    <div>L</div><div>M</div><div>M</div><div>J</div>
+    <div>V</div><div>S</div><div>D</div>
+  </div>
+  <div class="days" id="calendarDays"></div>
+</div>
 
 <div class="footer">
 LOG · Artificial Intelligence
 </div>
 
 <script>
+const colors = ["blue", "green", "yellow", "red", "purple"];
+
+const membersInput = document.getElementById("members");
+const tasksInput = document.getElementById("tasks");
+const taskToggles = document.getElementById("taskToggles");
 const monthSelect = document.getElementById("month");
 const yearSelect = document.getElementById("year");
 
-const months = [
-  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-];
+const months = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
-months.forEach((m, i) => {
-  const opt = document.createElement("option");
-  opt.value = i;
-  opt.textContent = m;
-  monthSelect.appendChild(opt);
+months.forEach((m,i)=>{
+  const o=document.createElement("option");
+  o.value=i; o.textContent=m;
+  monthSelect.appendChild(o);
 });
 
-const currentYear = new Date().getFullYear();
-for (let y = currentYear - 1; y <= currentYear + 5; y++) {
-  const opt = document.createElement("option");
-  opt.value = y;
-  opt.textContent = y;
-  yearSelect.appendChild(opt);
+const yearNow = new Date().getFullYear();
+for(let y=yearNow-1;y<=yearNow+5;y++){
+  const o=document.createElement("option");
+  o.value=y; o.textContent=y;
+  yearSelect.appendChild(o);
 }
 
-monthSelect.value = new Date().getMonth();
-yearSelect.value = currentYear;
+function saveData(){
+  localStorage.setItem("logData", JSON.stringify({
+    members: membersInput.value,
+    tasks: tasksInput.value,
+    month: monthSelect.value,
+    year: yearSelect.value,
+    activeTasks: [...document.querySelectorAll(".task-toggle input")].map(c=>c.checked)
+  }));
+}
 
-function generateCalendar() {
-  const members = document.getElementById("members")
-    .value.split("\n")
-    .map(m => m.trim())
-    .filter(m => m);
+function loadData(){
+  const data = JSON.parse(localStorage.getItem("logData"));
+  if(!data) return;
 
-  if (members.length === 0) {
-    alert("Agrega al menos un integrante");
-    return;
+  membersInput.value = data.members;
+  tasksInput.value = data.tasks;
+  monthSelect.value = data.month;
+  yearSelect.value = data.year;
+  renderTaskToggles(data.activeTasks);
+  generateCalendar();
+}
+
+tasksInput.addEventListener("input", ()=>renderTaskToggles());
+
+function renderTaskToggles(saved=[]){
+  taskToggles.innerHTML="";
+  const tasks = tasksInput.value.split("\n").filter(t=>t.trim());
+
+  tasks.forEach((task,i)=>{
+    const div=document.createElement("div");
+    div.className="task-toggle";
+
+    const chk=document.createElement("input");
+    chk.type="checkbox";
+    chk.checked = saved[i] !== false;
+    chk.onchange = saveData;
+
+    const lbl=document.createElement("span");
+    lbl.textContent=task;
+
+    div.appendChild(chk);
+    div.appendChild(lbl);
+    taskToggles.appendChild(div);
+  });
+}
+
+function generateCalendar(){
+  saveData();
+
+  const members = membersInput.value.split("\n").filter(m=>m.trim());
+  const allTasks = tasksInput.value.split("\n").filter(t=>t.trim());
+  const active = [...document.querySelectorAll(".task-toggle input")].map(c=>c.checked);
+  const tasks = allTasks.filter((_,i)=>active[i]);
+
+  if(!members.length || !tasks.length) return;
+
+  const month = +monthSelect.value;
+  const year = +yearSelect.value;
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  const firstDay = new Date(year,month,1).getDay();
+  const offset = firstDay===0?6:firstDay-1;
+
+  const cal=document.getElementById("calendarDays");
+  cal.innerHTML="";
+
+  let personIndex=0;
+
+  for(let i=0;i<offset;i++){
+    const e=document.createElement("div");
+    e.className="day empty";
+    cal.appendChild(e);
   }
 
-  const month = parseInt(monthSelect.value);
-  const year = parseInt(yearSelect.value);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for(let d=1;d<=daysInMonth;d++){
+    const cell=document.createElement("div");
+    cell.className="day";
+    cell.innerHTML=`<strong>${d}</strong>`;
 
-  const calendar = document.getElementById("calendar");
-  calendar.innerHTML = "";
+    tasks.forEach((task,i)=>{
+      const person = members[(personIndex+i)%members.length];
+      const div=document.createElement("div");
+      div.className=`task ${colors[i%colors.length]}`;
+      div.textContent=`${task} – ${person}`;
+      cell.appendChild(div);
+    });
 
-  let index = 0;
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const responsible = members[index % members.length];
-    index++;
-
-    const div = document.createElement("div");
-    div.className = "day";
-    div.innerHTML = `<strong>Día ${day}</strong><br>
-    Lavar platos: <strong>${responsible}</strong>`;
-    calendar.appendChild(div);
+    personIndex++;
+    cal.appendChild(cell);
   }
 }
+
+loadData();
 </script>
 
 </body>
