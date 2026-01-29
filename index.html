@@ -1,173 +1,159 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LOG · Artificial Intelligence</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root {
-      --bg: #0e0e11;
-      --card: #17171c;
-      --text: #f5f5f7;
-      --muted: #9b9ba0;
-      --accent: #5b8cff;
-      --radius: 16px;
-    }
+<title>LOG – Artificial Intelligence</title>
 
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 20px;
+  font-size: 20px;
+}
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      padding: 20px;
-    }
+h1 {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 5px;
+}
 
-    header {
-      margin-bottom: 24px;
-    }
+.subtitle {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 25px;
+}
 
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
+label {
+  display: block;
+  margin-top: 20px;
+  font-weight: bold;
+}
 
-    .subtitle {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+textarea, select, button {
+  width: 100%;
+  font-size: 22px;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
 
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 16px;
-    }
+button {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  margin-top: 25px;
+}
 
-    label {
-      font-size: 13px;
-      color: var(--muted);
-    }
+#calendar {
+  margin-top: 30px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 12px;
-      border: none;
-      background: #22222a;
-      color: var(--text);
-      font-size: 16px;
-    }
+.day {
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  font-size: 22px;
+}
 
-    button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 14px;
-      border-radius: 14px;
-      border: none;
-      background: var(--accent);
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .day {
-      background: #1f1f26;
-      border-radius: 12px;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-    }
-
-    .day span {
-      display: block;
-      margin-top: 6px;
-      font-weight: 500;
-      color: var(--accent);
-      font-size: 11px;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 32px;
-    }
-  </style>
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #777;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <h1>LOG</h1>
-  <div class="subtitle">Artificial Intelligence · by Mario Andrés Narváez Delgado</div>
-</header>
-
-<div class="card">
-  <label>Integrantes de la familia (separados por coma)</label>
-  <input id="members" placeholder="Ej: Ana, Luis, Carlos, Sofía" />
-
-  <label style="margin-top:12px;display:block;">Responsabilidad</label>
-  <input id="task" placeholder="Ej: Lavar platos" />
-
-  <button onclick="generateCalendar()">Generar calendario</button>
+<h1>LOG</h1>
+<div class="subtitle">
+Artificial Intelligence<br>
+by Mario Andrés Narváez Delgado
 </div>
 
-<div class="card">
-  <h3 style="margin-top:0;font-weight:500;">Calendario del mes</h3>
-  <div id="calendar" class="calendar"></div>
-</div>
+<label>Integrantes de la familia (uno por línea)</label>
+<textarea id="members" rows="5" placeholder="Ej:&#10;Mamá&#10;Papá&#10;Juan&#10;Ana"></textarea>
 
-<footer>
-  LOG · Artificial Intelligence
-</footer>
+<label>Mes</label>
+<select id="month"></select>
+
+<label>Año</label>
+<select id="year"></select>
+
+<button onclick="generateCalendar()">Generar calendario</button>
+
+<div id="calendar"></div>
+
+<div class="footer">
+LOG · Artificial Intelligence
+</div>
 
 <script>
-  function generateCalendar() {
-    const membersInput = document.getElementById("members").value;
-    const task = document.getElementById("task").value;
-    const calendar = document.getElementById("calendar");
+const monthSelect = document.getElementById("month");
+const yearSelect = document.getElementById("year");
 
-    calendar.innerHTML = "";
+const months = [
+  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+];
 
-    if (!membersInput || !task) return;
+months.forEach((m, i) => {
+  const opt = document.createElement("option");
+  opt.value = i;
+  opt.textContent = m;
+  monthSelect.appendChild(opt);
+});
 
-    const members = membersInput.split(",").map(m => m.trim());
-    const daysInMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0
-    ).getDate();
+const currentYear = new Date().getFullYear();
+for (let y = currentYear - 1; y <= currentYear + 5; y++) {
+  const opt = document.createElement("option");
+  opt.value = y;
+  opt.textContent = y;
+  yearSelect.appendChild(opt);
+}
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      const person = members[Math.floor(Math.random() * members.length)];
+monthSelect.value = new Date().getMonth();
+yearSelect.value = currentYear;
 
-      const dayDiv = document.createElement("div");
-      dayDiv.className = "day";
-      dayDiv.innerHTML = `
-        ${day}
-        <span>${person}</span>
-      `;
+function generateCalendar() {
+  const members = document.getElementById("members")
+    .value.split("\n")
+    .map(m => m.trim())
+    .filter(m => m);
 
-      calendar.appendChild(dayDiv);
-    }
+  if (members.length === 0) {
+    alert("Agrega al menos un integrante");
+    return;
   }
+
+  const month = parseInt(monthSelect.value);
+  const year = parseInt(yearSelect.value);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+
+  let index = 0;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const responsible = members[index % members.length];
+    index++;
+
+    const div = document.createElement("div");
+    div.className = "day";
+    div.innerHTML = `<strong>Día ${day}</strong><br>
+    Lavar platos: <strong>${responsible}</strong>`;
+    calendar.appendChild(div);
+  }
+}
 </script>
 
 </body>
