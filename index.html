@@ -9,27 +9,28 @@
 <style>
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  background: #f4f6f8;
+  background: #0b1c2d;
+  color: #fff;
   margin: 0;
   padding: 20px;
 }
 
 h1 {
   text-align: center;
-  font-size: 36px;
+  font-size: 38px;
   margin-bottom: 5px;
 }
 
 .subtitle {
   text-align: center;
   font-size: 18px;
-  color: #555;
-  margin-bottom: 25px;
+  color: #cdd9e5;
+  margin-bottom: 30px;
 }
 
 label {
   display: block;
-  margin-top: 20px;
+  margin-top: 22px;
   font-size: 22px;
   font-weight: bold;
 }
@@ -39,31 +40,42 @@ textarea, select, button {
   font-size: 22px;
   padding: 12px;
   margin-top: 8px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+  border-radius: 12px;
+  border: none;
+}
+
+textarea, select {
+  background: #12263f;
+  color: #fff;
 }
 
 button {
-  background: #000;
+  background: #1f6feb;
   color: #fff;
   font-weight: bold;
-  margin-top: 25px;
+  margin-top: 30px;
 }
 
-.task-toggle {
+.task-config {
+  background: #12263f;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.task-row {
   display: flex;
-  align-items: center;
-  font-size: 20px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-.task-toggle input {
-  margin-right: 10px;
-  transform: scale(1.4);
+.task-row span {
+  flex: 1;
+  font-size: 20px;
 }
 
 .calendar {
-  margin-top: 30px;
+  margin-top: 35px;
 }
 
 .weekdays {
@@ -72,41 +84,33 @@ button {
   text-align: center;
   font-size: 20px;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  margin-top: 10px;
+  gap: 12px;
 }
 
 .day {
-  background: #fff;
-  border-radius: 14px;
-  padding: 10px;
-  min-height: 140px;
-  font-size: 18px;
+  background: #12263f;
+  border-radius: 16px;
+  padding: 12px;
+  min-height: 150px;
 }
 
 .day strong {
-  display: block;
-  font-size: 22px;
-  margin-bottom: 6px;
+  font-size: 24px;
 }
 
 .task {
-  padding: 6px 8px;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  font-size: 16px;
+  background: #1f6feb;
+  border-radius: 10px;
+  padding: 8px;
+  margin-top: 8px;
+  font-size: 18px;
 }
-
-.blue { background: #d0e7ff; }
-.green { background: #d8f5dc; }
-.yellow { background: #fff4cc; }
-.red { background: #ffd6d6; }
-.purple { background: #eadcff; }
 
 .empty {
   background: transparent;
@@ -116,7 +120,7 @@ button {
   text-align: center;
   margin-top: 40px;
   font-size: 14px;
-  color: #777;
+  color: #9fb3c8;
 }
 </style>
 </head>
@@ -130,13 +134,16 @@ by Mario Andrés Narváez Delgado
 </div>
 
 <label>Integrantes</label>
-<textarea id="members" rows="4"></textarea>
+<textarea id="members" rows="4"
+placeholder="Mamá
+Papá
+Juan
+Ana"></textarea>
 
-<label>Tareas</label>
-<textarea id="tasks" rows="4"></textarea>
+<label>Tareas y frecuencia</label>
+<div id="taskContainer"></div>
 
-<label>Activar tareas</label>
-<div id="taskToggles"></div>
+<button onclick="addTask()">➕ Agregar tarea</button>
 
 <label>Mes</label>
 <select id="month"></select>
@@ -159,100 +166,75 @@ LOG · Artificial Intelligence
 </div>
 
 <script>
-const colors = ["blue", "green", "yellow", "red", "purple"];
+const icons = {
+  diaria: "🧽",
+  semanal8: "🌀",
+  quincenal: "🌓",
+  mensual: "📅"
+};
 
-const membersInput = document.getElementById("members");
-const tasksInput = document.getElementById("tasks");
-const taskToggles = document.getElementById("taskToggles");
 const monthSelect = document.getElementById("month");
 const yearSelect = document.getElementById("year");
+const taskContainer = document.getElementById("taskContainer");
 
 const months = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-
 months.forEach((m,i)=>{
   const o=document.createElement("option");
   o.value=i; o.textContent=m;
   monthSelect.appendChild(o);
 });
 
-const yearNow = new Date().getFullYear();
-for(let y=yearNow-1;y<=yearNow+5;y++){
+const yNow=new Date().getFullYear();
+for(let y=yNow-1;y<=yNow+5;y++){
   const o=document.createElement("option");
   o.value=y; o.textContent=y;
   yearSelect.appendChild(o);
 }
 
-function saveData(){
-  localStorage.setItem("logData", JSON.stringify({
-    members: membersInput.value,
-    tasks: tasksInput.value,
-    month: monthSelect.value,
-    year: yearSelect.value,
-    activeTasks: [...document.querySelectorAll(".task-toggle input")].map(c=>c.checked)
-  }));
-}
+monthSelect.value=new Date().getMonth();
+yearSelect.value=yNow;
 
-function loadData(){
-  const data = JSON.parse(localStorage.getItem("logData"));
-  if(!data) return;
+function addTask(name="", freq="diaria"){
+  const div=document.createElement("div");
+  div.className="task-config";
 
-  membersInput.value = data.members;
-  tasksInput.value = data.tasks;
-  monthSelect.value = data.month;
-  yearSelect.value = data.year;
-  renderTaskToggles(data.activeTasks);
-  generateCalendar();
-}
-
-tasksInput.addEventListener("input", ()=>renderTaskToggles());
-
-function renderTaskToggles(saved=[]){
-  taskToggles.innerHTML="";
-  const tasks = tasksInput.value.split("\n").filter(t=>t.trim());
-
-  tasks.forEach((task,i)=>{
-    const div=document.createElement("div");
-    div.className="task-toggle";
-
-    const chk=document.createElement("input");
-    chk.type="checkbox";
-    chk.checked = saved[i] !== false;
-    chk.onchange = saveData;
-
-    const lbl=document.createElement("span");
-    lbl.textContent=task;
-
-    div.appendChild(chk);
-    div.appendChild(lbl);
-    taskToggles.appendChild(div);
-  });
+  div.innerHTML=`
+    <input placeholder="Nombre de la tarea" value="${name}">
+    <div class="task-row">
+      <span>Frecuencia</span>
+      <select>
+        <option value="diaria">Diaria</option>
+        <option value="semanal8">Cada 8 días</option>
+        <option value="quincenal">Quincenal</option>
+        <option value="mensual">Mensual</option>
+      </select>
+    </div>
+  `;
+  div.querySelector("select").value=freq;
+  taskContainer.appendChild(div);
 }
 
 function generateCalendar(){
-  saveData();
-
-  const members = membersInput.value.split("\n").filter(m=>m.trim());
-  const allTasks = tasksInput.value.split("\n").filter(t=>t.trim());
-  const active = [...document.querySelectorAll(".task-toggle input")].map(c=>c.checked);
-  const tasks = allTasks.filter((_,i)=>active[i]);
+  const members = document.getElementById("members").value.split("\n").filter(x=>x.trim());
+  const tasks = [...taskContainer.children].map(t=>({
+    name: t.querySelector("input").value,
+    freq: t.querySelector("select").value
+  })).filter(t=>t.name);
 
   if(!members.length || !tasks.length) return;
 
-  const month = +monthSelect.value;
-  const year = +yearSelect.value;
-  const daysInMonth = new Date(year,month+1,0).getDate();
-  const firstDay = new Date(year,month,1).getDay();
-  const offset = firstDay===0?6:firstDay-1;
+  const month=+monthSelect.value;
+  const year=+yearSelect.value;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const firstDay=new Date(year,month,1).getDay();
+  const offset=firstDay===0?6:firstDay-1;
 
   const cal=document.getElementById("calendarDays");
   cal.innerHTML="";
-
   let personIndex=0;
 
   for(let i=0;i<offset;i++){
-    const e=document.createElement("div");
-    e.className="day empty";
-    cal.appendChild(e);
+    cal.appendChild(document.createElement("div")).className="day empty";
   }
 
   for(let d=1;d<=daysInMonth;d++){
@@ -260,12 +242,19 @@ function generateCalendar(){
     cell.className="day";
     cell.innerHTML=`<strong>${d}</strong>`;
 
-    tasks.forEach((task,i)=>{
-      const person = members[(personIndex+i)%members.length];
-      const div=document.createElement("div");
-      div.className=`task ${colors[i%colors.length]}`;
-      div.textContent=`${task} – ${person}`;
-      cell.appendChild(div);
+    tasks.forEach((t,i)=>{
+      const show =
+        t.freq==="diaria" ||
+        (t.freq==="semanal8" && d%8===0) ||
+        (t.freq==="quincenal" && (d===1 || d===15)) ||
+        (t.freq==="mensual" && d===1);
+
+      if(show){
+        const div=document.createElement("div");
+        div.className="task";
+        div.textContent=`${icons[t.freq]} ${t.name} – ${members[(personIndex+i)%members.length]}`;
+        cell.appendChild(div);
+      }
     });
 
     personIndex++;
@@ -273,7 +262,11 @@ function generateCalendar(){
   }
 }
 
-loadData();
+// tareas iniciales ejemplo
+addTask("Lavar platos","diaria");
+addTask("Barrer","semanal8");
+addTask("Sacar basura","quincenal");
+addTask("Limpieza general","mensual");
 </script>
 
 </body>
