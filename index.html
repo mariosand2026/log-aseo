@@ -1,206 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LOG · Artificial Intelligence</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOG · Artificial Intelligence</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #ffffff;
-      color: #000000;
-      display: flex;
-      justify-content: center;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 460px;
-      padding: 24px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 32px;
-      letter-spacing: 2px;
-    }
-
-    header p {
-      margin: 4px 0 0;
-      font-size: 12px;
-      color: #666;
-    }
-
-    .card {
-      border: 1px solid #e5e5e5;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    textarea, input, select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      background: #000;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-      margin-top: 8px;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-      margin-top: 12px;
-    }
-
-    .day {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 6px;
-      font-size: 11px;
-      min-height: 60px;
-    }
-
-    .day strong {
-      display: block;
-      font-size: 12px;
-      margin-bottom: 2px;
-    }
-
-    footer {
-      margin-top: 32px;
-      text-align: center;
-      font-size: 11px;
-      color: #777;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  background:#fff;
+  color:#000;
+  display:flex;
+  justify-content:center;
+}
+.app{
+  max-width:460px;
+  width:100%;
+  padding:24px;
+  display:none;
+}
+header{text-align:center;margin-bottom:20px}
+header h1{margin:0;font-size:32px;letter-spacing:2px}
+header p{margin:4px 0 0;font-size:12px;color:#666}
+.card{
+  border:1px solid #e5e5e5;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px;
+}
+textarea,select,input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-bottom:10px;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#000;
+  color:#fff;
+  font-weight:600;
+  margin-top:6px;
+}
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  margin-top:12px;
+}
+.day{
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:6px;
+  font-size:11px;
+  min-height:70px;
+}
+.day strong{
+  display:block;
+  font-size:12px;
+}
+.task{
+  margin-top:2px;
+}
+.task-config{
+  border:1px dashed #ccc;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+}
+footer{
+  text-align:center;
+  font-size:11px;
+  color:#777;
+  margin-top:24px;
+}
+#splash{
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+</style>
 </head>
+
 <body>
-  <div id="splash" style="position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#000;color:#fff;z-index:9999;">
-    <h1 style="font-size:42px;letter-spacing:4px;margin:0;">LOG</h1>
-    <p style="margin-top:6px;font-size:14px;opacity:.8;">Artificial Intelligence</p>
-    <p style="margin-top:24px;font-size:12px;opacity:.6;">by Mario Andrés Narváez Delgado</p>
-  </div>
 
-  <div class="app" style="display:none;">
-    <header>
-      <h1>LOG</h1>
-      <p>Artificial Intelligence</p>
-    </header>
+<!-- SPLASH -->
+<div id="splash">
+  <h1 style="font-size:42px;letter-spacing:4px;margin:0">LOG</h1>
+  <p style="opacity:.8;margin:6px 0 0">Artificial Intelligence</p>
+  <p style="opacity:.6;margin-top:24px;font-size:12px">
+    by Mario Andrés Narváez Delgado
+  </p>
+</div>
 
-    <div class="card">
-      <h3>Integrantes</h3>
-      <textarea id="members" rows="4" placeholder="Un nombre por línea"></textarea>
+<div class="app">
+<header>
+  <h1>LOG</h1>
+  <p>Artificial Intelligence</p>
+</header>
 
-      <h3>Actividades</h3>
-      <textarea id="activities" rows="3" placeholder="Ejemplo:\nLavar platos\nSacar basura\nBarrer"></textarea>
+<div class="card">
+  <h3>Integrantes</h3>
+  <textarea id="members" rows="4"
+    placeholder="Un nombre por línea"></textarea>
 
-      <h3>Frecuencia de la actividad</h3>
-      <select id="frequency">
-        <option value="1">Diaria</option>
-        <option value="8">Cada 8 días</option>
-        <option value="15">Cada 15 días</option>
-        <option value="30">Mensual</option>
-      </select>
+  <h3>Actividades y frecuencia</h3>
+  <div id="taskContainer"></div>
+  <button onclick="addTask()">➕ Agregar actividad</button>
 
-      <h3>Mes</h3>
-      <select id="month"></select>
-      <select id="year"></select>
+  <h3>Mes</h3>
+  <select id="month"></select>
+  <select id="year"></select>
 
-      <button onclick="generateCalendar()">Generar calendario</button>
-      <button onclick="resetCalendar()">Regenerar mes</button>
-    </div>
+  <button onclick="generateCalendar()">Generar calendario</button>
+</div>
 
-    <div class="card" id="calendarContainer"></div>
+<div class="card" id="calendarContainer"></div>
 
-    <footer>
-      LOG · Artificial Intelligence<br>
-      by Mario Andrés Narváez Delgado
-    </footer>
-  </div>
+<footer>
+LOG · Artificial Intelligence<br>
+by Mario Andrés Narváez Delgado
+</footer>
+</div>
 
-  <script>
-    const monthSelect = document.getElementById('month');
-    const yearSelect = document.getElementById('year');
-    const calendarContainer = document.getElementById('calendarContainer');
+<script>
+const icons={
+  diaria:"🧽",
+  semanal8:"🌀",
+  quincenal:"🌓",
+  mensual:"📅"
+};
 
-    const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    const currentYear = new Date().getFullYear();
+const months=["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+"Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
-    months.forEach((m, i) => {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = m;
-      if (i === new Date().getMonth()) opt.selected = true;
-      monthSelect.appendChild(opt);
-    });
+const monthSel=document.getElementById("month");
+const yearSel=document.getElementById("year");
+const taskContainer=document.getElementById("taskContainer");
+const calendarContainer=document.getElementById("calendarContainer");
 
-    for (let y = currentYear - 1; y <= currentYear + 2; y++) {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      if (y === currentYear) opt.selected = true;
-      yearSelect.appendChild(opt);
-    }
+// meses y años
+months.forEach((m,i)=>{
+  const o=document.createElement("option");
+  o.value=i;o.textContent=m;
+  monthSel.appendChild(o);
+});
+const yNow=new Date().getFullYear();
+for(let y=yNow-1;y<=yNow+2;y++){
+  const o=document.createElement("option");
+  o.value=y;o.textContent=y;
+  yearSel.appendChild(o);
+}
+monthSel.value=new Date().getMonth();
+yearSel.value=yNow;
 
-    function generateCalendar() {
-      const members = document.getElementById('members').value.split('\n').map(x => x.trim()).filter(Boolean);
-      const activities = document.getElementById('activities').value.split('\n').map(x => x.trim()).filter(Boolean);
-      if (members.length === 0 || activities.length === 0) return;
+// agregar tarea
+function addTask(name="",freq="diaria"){
+  const div=document.createElement("div");
+  div.className="task-config";
+  div.innerHTML=`
+    <input placeholder="Nombre de la actividad" value="${name}">
+    <select>
+      <option value="diaria">Diaria</option>
+      <option value="semanal8">Cada 8 días</option>
+      <option value="quincenal">Quincenal</option>
+      <option value="mensual">Mensual</option>
+    </select>
+  `;
+  div.querySelector("select").value=freq;
+  taskContainer.appendChild(div);
+}
 
-      const month = parseInt(monthSelect.value);
-      const year = parseInt(yearSelect.value);
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+// calendario
+function generateCalendar(){
+  const members=document.getElementById("members")
+    .value.split('\n').map(x=>x.trim()).filter(Boolean);
 
-      let html = `<h3>${months[month]} ${year}</h3>`;
-      html += '<div class="calendar">';
+  const tasks=[...taskContainer.children].map(t=>({
+    name:t.querySelector("input").value.trim(),
+    freq:t.querySelector("select").value
+  })).filter(t=>t.name);
 
-      for (let d = 1; d <= daysInMonth; d++) {
-        const member = members[Math.floor(Math.random() * members.length)];
-        const activity = activities[Math.floor(Math.random() * activities.length)];
-        html += `
-          <div class="day">
-            <strong>${d}</strong>
-            ${member}<br>${activity}
+  if(!members.length||!tasks.length) return;
+
+  const month=+monthSel.value;
+  const year=+yearSel.value;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+
+  const taskIndexes={};
+  tasks.forEach(t=>{
+    taskIndexes[t.name]=Math.floor(Math.random()*members.length);
+  });
+
+  let html=`<h3>${months[month]} ${year}</h3>`;
+  html+=`<div class="calendar">`;
+
+  for(let d=1;d<=daysInMonth;d++){
+    html+=`<div class="day"><strong>${d}</strong>`;
+    tasks.forEach(t=>{
+      const show=
+        t.freq==="diaria" ||
+        (t.freq==="semanal8" && (d-1)%8===0) ||
+        (t.freq==="quincenal" && (d===1||d===15)) ||
+        (t.freq==="mensual" && d===1);
+
+      if(show){
+        const idx=taskIndexes[t.name];
+        html+=`
+          <div class="task">
+            ${icons[t.freq]} ${t.name} – ${members[idx]}
           </div>`;
+        taskIndexes[t.name]=(idx+1)%members.length;
       }
+    });
+    html+=`</div>`;
+  }
 
-      html += '</div>';
-      calendarContainer.innerHTML = html;
-      localStorage.setItem('log_calendar', html);
-    }
+  html+=`</div>`;
+  calendarContainer.innerHTML=html;
+  localStorage.setItem("log_calendar",html);
+}
 
-    function resetCalendar() {
-      localStorage.removeItem('log_calendar');
-      generateCalendar();
-    }
+// splash
+setTimeout(()=>{
+  document.getElementById("splash").style.display="none";
+  document.querySelector(".app").style.display="block";
+},1800);
 
-    const saved = localStorage.getItem('log_calendar');
-    if (saved) calendarContainer.innerHTML = saved;
-    setTimeout(() => {
-      document.getElementById('splash').style.display = 'none';
-      document.querySelector('.app').style.display = 'block';
-    }, 1800);
-  </script>
+// ejemplo inicial
+addTask("Lavar platos","diaria");
+addTask("Barrer","semanal8");
+addTask("Sacar basura","quincenal");
+addTask("Limpieza general","mensual");
+</script>
+
 </body>
 </html>
