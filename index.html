@@ -123,22 +123,40 @@ function generateCalendar(){
   }
   calendarContainer.innerHTML=html+"</div>";
 }
-
 async function generatePDF(){
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF("p","mm","a4");
-  const canvas=await html2canvas(calendarContainer,{scale:2});
-  const img=canvas.toDataURL("image/png");
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
 
-  const w=210;
-  const h=canvas.height*w/canvas.width;
-  let y=0;
+  const element = document.getElementById("calendarContainer");
 
-  while(y<h){
-    pdf.addImage(img,"PNG",0,-y,w,h);
-    y+=297;
-    if(y<h)pdf.addPage();
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pageWidth  = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth  = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let finalHeight = imgHeight;
+
+  // 🔑 Si el contenido es más alto que la página, lo escalamos
+  if (imgHeight > pageHeight) {
+    finalHeight = pageHeight;
   }
+
+  pdf.addImage(
+    imgData,
+    "PNG",
+    0,
+    0,
+    imgWidth,
+    finalHeight
+  );
 
   pdf.save("Calendario_Aseo_LOG.pdf");
 }
