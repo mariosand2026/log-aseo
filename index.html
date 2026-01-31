@@ -1,227 +1,278 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LOG · Artificial Intelligence</title>
 
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-  body{
-    margin:0;
-    background:#000;
-    color:#fff;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  header{
-    text-align:center;
-    padding:20px 10px;
-  }
-
-  header h1{
-    margin:0;
-    font-weight:300;
-    letter-spacing:2px;
-  }
-
-  header small{
-    display:block;
-    opacity:.6;
-    margin-top:4px;
-  }
-
-  .container{
-    max-width:420px;
-    margin:auto;
-    padding:10px;
-  }
-
-  textarea, input, select, button{
-    width:100%;
-    background:#111;
-    border:1px solid #222;
-    color:#fff;
-    padding:10px;
-    border-radius:6px;
-    margin-bottom:8px;
-    font-size:14px;
-  }
-
-  button{
-    cursor:pointer;
-    background:#fff;
-    color:#000;
-    font-weight:600;
-  }
-
-  button.secondary{
-    background:#111;
-    color:#fff;
-    border:1px solid #333;
-  }
-
-  .calendar{
-    display:grid;
-    grid-template-columns: repeat(7,1fr);
-    gap:4px;
-    margin-top:10px;
-  }
-
-  .day{
-    background:#111;
-    border:1px solid #222;
-    min-height:80px;
-    padding:4px;
-    font-size:11px;
-  }
-
-  .day strong{
-    display:block;
-    opacity:.6;
-    margin-bottom:2px;
-  }
-
-  .empty{
-    background:transparent;
-    border:none;
-  }
-
-  .task{
-    font-size:10px;
-    margin-top:2px;
-    opacity:.85;
-  }
-
-  footer{
-    text-align:center;
-    font-size:11px;
-    opacity:.4;
-    padding:15px 0 25px;
-  }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  background:#fff;
+  color:#000;
+  display:flex;
+  justify-content:center;
+}
+.app{
+  max-width:460px;
+  width:100%;
+  padding:24px;
+  display:none;
+}
+header{text-align:center;margin-bottom:20px}
+header h1{margin:0;font-size:32px;letter-spacing:2px}
+header p{margin:4px 0 0;font-size:12px;color:#666}
+.card{
+  border:1px solid #e5e5e5;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px;
+}
+textarea,select,input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-bottom:10px;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#000;
+  color:#fff;
+  font-weight:600;
+  margin-top:6px;
+}
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  margin-top:12px;
+}
+.day{
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:6px;
+  font-size:11px;
+  min-height:70px;
+}
+.day strong{
+  display:block;
+  font-size:12px;
+}
+.task{
+  margin-top:2px;
+}
+.task-config{
+  border:1px dashed #ccc;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+}
+footer{
+  text-align:center;
+  font-size:11px;
+  color:#777;
+  margin-top:24px;
+}
+#splash{
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>LOG</h1>
-  <small>Artificial Intelligence</small>
-</header>
-
-<div class="container">
-
-  <!-- CONFIGURACIÓN -->
-  <textarea id="members" rows="4" placeholder="Integrantes (uno por línea)"></textarea>
-
-  <input type="text" class="task-name" placeholder="Actividad (ej: Barrer)" />
-  <select class="task-freq">
-    <option value="diaria">Diaria</option>
-    <option value="semanal8">Cada 8 días</option>
-    <option value="quincenal">Quincenal</option>
-    <option value="mensual">Mensual</option>
-  </select>
-
-  <input type="number" id="month" placeholder="Mes (0-11)" />
-  <input type="number" id="year" placeholder="Año" />
-
-  <button onclick="generateCalendar()">Generar calendario</button>
-  <button class="secondary" onclick="generatePDF()">Generar PDF</button>
-
-  <!-- CALENDARIO -->
-  <div id="calendarDays" class="calendar"></div>
-
+<!-- SPLASH -->
+<div id="splash">
+  <h1 style="font-size:42px;letter-spacing:4px;margin:0">LOG</h1>
+  <p style="opacity:.8;margin:6px 0 0">Artificial Intelligence</p>
+  <p style="opacity:.6;margin-top:24px;font-size:12px">
+    by Mario Andrés Narváez Delgado
+  </p>
 </div>
 
+<div class="app">
+<header>
+  <h1>LOG</h1>
+  <p>Artificial Intelligence</p>
+</header>
+
+<div class="card">
+  <h3>Integrantes</h3>
+  <textarea id="members" rows="4"
+    placeholder="Un nombre por línea"></textarea>
+
+  <h3>Actividades y frecuencia</h3>
+  <div id="taskContainer"></div>
+  <button onclick="addTask()">➕ Agregar actividad</button>
+
+  <h3>Mes</h3>
+  <select id="month"></select>
+  <select id="year"></select>
+
+  <button onclick="generateCalendar()">Generar calendario</button>
+  <button onclick="generatePDF()">📄 Generar PDF</button>
+  <button onclick="sendWhatsApp()">📲 Enviar por WhatsApp</button>
+</div>
+
+<div class="card" id="calendarContainer"></div>
+
 <footer>
-  by Mario Andrés Narváez Delgado
+LOG · Artificial Intelligence<br>
+by Mario Andrés Narváez Delgado
 </footer>
+</div>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-const icons = {
+const { jsPDF } = window.jspdf;
+
+const icons={
   diaria:"🧽",
   semanal8:"🌀",
   quincenal:"🌓",
   mensual:"📅"
 };
 
-let calendarData = [];
+const months=["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+"Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+const monthSel=document.getElementById("month");
+const yearSel=document.getElementById("year");
+const taskContainer=document.getElementById("taskContainer");
+const calendarContainer=document.getElementById("calendarContainer");
+
+months.forEach((m,i)=>{
+  const o=document.createElement("option");
+  o.value=i;o.textContent=m;
+  monthSel.appendChild(o);
+});
+const yNow=new Date().getFullYear();
+for(let y=yNow-1;y<=yNow+2;y++){
+  const o=document.createElement("option");
+  o.value=y;o.textContent=y;
+  yearSel.appendChild(o);
+}
+monthSel.value=new Date().getMonth();
+yearSel.value=yNow;
+
+function addTask(name="",freq="diaria"){
+  const div=document.createElement("div");
+  div.className="task-config";
+  div.innerHTML=`
+    <input placeholder="Nombre de la actividad" value="${name}">
+    <select>
+      <option value="diaria">Diaria</option>
+      <option value="semanal8">Cada 8 días</option>
+      <option value="quincenal">Quincenal</option>
+      <option value="mensual">Mensual</option>
+    </select>
+  `;
+  div.querySelector("select").value=freq;
+  taskContainer.appendChild(div);
+}
+
+let calendarData=[];
 
 function generateCalendar(){
-  calendarData = [];
+  const members=document.getElementById("members")
+    .value.split('\n').map(x=>x.trim()).filter(Boolean);
 
-  const members = document.getElementById('members').value
-    .split('\n').map(x=>x.trim()).filter(Boolean);
+  const tasks=[...taskContainer.children].map(t=>({
+    name:t.querySelector("input").value.trim(),
+    freq:t.querySelector("select").value
+  })).filter(t=>t.name);
 
-  const taskName = document.querySelector('.task-name').value.trim();
-  const taskFreq = document.querySelector('.task-freq').value;
+  if(!members.length||!tasks.length) return;
 
-  if(!members.length || !taskName) return;
+  calendarData=[];
+  const month=+monthSel.value;
+  const year=+yearSel.value;
+  const daysInMonth=new Date(year,month+1,0).getDate();
 
-  const month = +document.getElementById('month').value;
-  const year  = +document.getElementById('year').value;
+  const taskIndexes={};
+  tasks.forEach(t=>{
+    taskIndexes[t.name]=Math.floor(Math.random()*members.length);
+  });
 
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  let html=`<h3>${months[month]} ${year}</h3><div class="calendar">`;
 
-  const cal = document.getElementById('calendarDays');
-  cal.innerHTML='';
+  for(let d=1;d<=daysInMonth;d++){
+    html+=`<div class="day"><strong>${d}</strong>`;
+    const dayTasks=[];
+    tasks.forEach(t=>{
+      const show=
+        t.freq==="diaria" ||
+        (t.freq==="semanal8" && (d-1)%8===0) ||
+        (t.freq==="quincenal" && (d===1||d===15)) ||
+        (t.freq==="mensual" && d===1);
 
-  let idx = Math.floor(Math.random()*members.length);
-
-  for(let i=0;i<offset;i++){
-    const e=document.createElement('div');
-    e.className='day empty';
-    cal.appendChild(e);
+      if(show){
+        const idx=taskIndexes[t.name];
+        const line=`${t.name} – ${members[idx]}`;
+        html+=`<div class="task">${icons[t.freq]} ${line}</div>`;
+        dayTasks.push(line);
+        taskIndexes[t.name]=(idx+1)%members.length;
+      }
+    });
+    calendarData.push({day:d,tasks:dayTasks});
+    html+=`</div>`;
   }
-
-  for(let d=1; d<=daysInMonth; d++){
-    const cell=document.createElement('div');
-    cell.className='day';
-    cell.innerHTML=`<strong>${d}</strong>`;
-
-    const show =
-      taskFreq==='diaria' ||
-      (taskFreq==='semanal8' && (d-1)%8===0) ||
-      (taskFreq==='quincenal' && (d===1||d===15)) ||
-      (taskFreq==='mensual' && d===1);
-
-    if(show){
-      const text=`${icons[taskFreq]} ${taskName} – ${members[idx]}`;
-      const div=document.createElement('div');
-      div.className='task';
-      div.textContent=text;
-      cell.appendChild(div);
-
-      calendarData.push({day:d,text});
-      idx=(idx+1)%members.length;
-    }
-
-    cal.appendChild(cell);
-  }
+  html+=`</div>`;
+  calendarContainer.innerHTML=html;
 }
 
 function generatePDF(){
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+  if(!calendarData.length) return;
 
+  const pdf=new jsPDF();
+  let y=10;
   pdf.setFontSize(14);
-  pdf.text("Calendario de Aseo", 14, 15);
+  pdf.text(`Calendario de Aseo – ${months[monthSel.value]} ${yearSel.value}`,10,y);
+  y+=10;
 
   pdf.setFontSize(10);
-  let y = 25;
-
   calendarData.forEach(d=>{
-    pdf.text(`Día ${d.day}: ${d.text}`, 14, y);
-    y+=6;
-    if(y>280){ pdf.addPage(); y=20; }
+    if(y>280){ pdf.addPage(); y=10; }
+    pdf.text(`Día ${d.day}`,10,y); y+=6;
+    d.tasks.forEach(t=>{
+      pdf.text(`• ${t}`,14,y); y+=5;
+    });
+    y+=4;
   });
 
-  pdf.save("calendario_aseo.pdf");
+  pdf.save(`Calendario_${months[monthSel.value]}_${yearSel.value}.pdf`);
 }
+
+function sendWhatsApp(){
+  const text=`Hola 👋\nTe comparto el calendario de aseo de ${months[monthSel.value]} ${yearSel.value}.\n\nAdjunto el PDF generado.\n\nLOG · Artificial Intelligence`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+}
+
+setTimeout(()=>{
+  document.getElementById("splash").style.display="none";
+  document.querySelector(".app").style.display="block";
+},1800);
+
+// ejemplos
+addTask("Lavar platos","diaria");
+addTask("Barrer","semanal8");
+addTask("Sacar basura","quincenal");
+addTask("Limpieza general","mensual");
 </script>
 
 </body>
